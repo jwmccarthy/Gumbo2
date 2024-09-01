@@ -8,13 +8,12 @@ from gumbo.types import Device
 
 class TensorBundle:
     """
-    A nested collection of PyTorch tensors with common Tensor operations
+    Nested collection of PyTorch tensors with common Tensor operations
     """
 
     def __init__(self, data: dict, device: Device = "cpu"):
         self._data = {}
         self.device = device
-
         for key, val in data.items():
             self._data[key] = self._parse_data(val)
 
@@ -43,6 +42,9 @@ class TensorBundle:
     def __len__(self):
         return len(next(iter(self._data.values())))
     
+    def __contains__(self, key: str):
+        return key in self._data
+    
     def set(self, **kwargs):
         for key, val in kwargs.items():
             self._data[key] = self._parse_data(val)
@@ -52,3 +54,40 @@ class TensorBundle:
         for key, val in self._data.items():
             self._data[key] = val.to(device)
         return self
+    
+
+class BundleSubset(TensorBundle):
+    """
+    Reference to a subset of a TensorBundle
+    """
+
+    _data: TensorBundle
+    _index: Index
+
+    def __init__(self, data: TensorBundle, index: Index):
+        self._data = data
+        self._index = index
+
+    def __getitem__(self, idx: Index):
+        return self._data[self._index][idx]
+    
+    def __setitem__(self, idx: Index, val: dict | Self):
+        self._data[self._index][idx] = val
+    
+    def __getattr__(self, key: str):
+        if key in self._data:
+            return getattr(self._data[self._index], key)
+        return self.__getattribute__(key)
+    
+    def __len__(self):
+        return len(self._data[self._index])
+    
+    def __contains__(self, key: str):
+        return key in self._data
+    
+    @property
+    def device(self):
+        return self._data.device
+
+    def set(self, **kwargs):
+        self._data.set(**kwargs)

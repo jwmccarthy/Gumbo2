@@ -22,9 +22,9 @@ class FlattenEncoder(nn.Module):
         super().__init__()
     
     def build(self, obs_spec):
-        shape = obs_spec.shape
-        self.model = nn.Flatten()
-        return shape.numel()
+        self.model = nn.Flatten(
+            start_dim=-len(obs_spec.shape))
+        return obs_spec.shape.numel()
     
     def forward(self, obs):
         return self.model(obs)

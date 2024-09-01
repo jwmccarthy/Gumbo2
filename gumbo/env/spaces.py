@@ -10,7 +10,7 @@ from gumbo.types import TorchSpec
 from gumbo.types import torch_dtypes
 
 
-def _torch_space(space: Space, device="cpu"):
+def _torch_spec_from_space(space: Space, device="cpu"):
     if isinstance(space, spaces.Box):
         return BoxSpace(space, device=device)
     if isinstance(space, spaces.Discrete):

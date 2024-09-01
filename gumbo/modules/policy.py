@@ -37,6 +37,12 @@ class BasePolicy(nn.Module):
     def sample(self, obs):
         ...
 
+    def log_probs(self, obs, act):
+        return self.dist(obs).log_prob(act)
+    
+    def entropy(self, obs):
+        return self.dist(obs).entropy()
+
     def forward(self, obs, sample=True):
         if sample:
             return self.sample(obs)

@@ -4,8 +4,12 @@ from typing import List
 
 from gumbo.types import Index, Device
 from gumbo.bundle import TensorBundle
+from gumbo.bundle import BundleSubset
 
 
+# TODO: on-policy & off-policy implementations?
+# TODO: handle on/off-policy via the collector?
+# TODO: "add" method to account for index type?
 class Buffer(TensorBundle):
     """
     TensorBundle with additional methods for managing experience data
@@ -34,7 +38,7 @@ class EpisodicBuffer(Buffer):
     """
 
     _index: int
-    _episodes: List[TensorBundle]
+    _episodes: List[dict]
 
     def __init__(self, data: dict, device: Device = "cpu"):
         super().__init__(data, device=device)
@@ -42,7 +46,8 @@ class EpisodicBuffer(Buffer):
         self._episodes = []
 
     def add_episode(self, info: dict):
-        episode = self[info.pop("idx")]
+        episode = BundleSubset(
+            self, info.pop("idx"))
         for key, val in info.items():
             setattr(episode, key, val)
         self._episodes.append(episode)

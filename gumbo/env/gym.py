@@ -1,19 +1,19 @@
 import torch as th
 
 from gumbo.types import TorchSpec
-from gumbo.env.spaces import _torch_space
+from gumbo.env.spaces import _torch_spec_from_space
 
 
 class TorchEnv:
 
-    def __init__(self, env_fn, device="cpu", **env_kwargs):
-        self.env = env_fn(**env_kwargs)
+    def __init__(self, env, device="cpu"):
+        self.env = env
         self.device = device
 
         # env input/output specs
-        self.obs_spec = _torch_space(
+        self.obs_spec = _torch_spec_from_space(
             self.env.observation_space, device=self.device)
-        self.act_spec = _torch_space(
+        self.act_spec = _torch_spec_from_space(
             self.env.action_space, device=self.device)
         self.rew_spec = TorchSpec(
             (), th.float32, device=self.device)
@@ -34,14 +34,17 @@ class TorchEnv:
         obs, _ = self.env.reset()
         return th.as_tensor(obs, device=self.device)
 
+    def _step(self, act):
+        *exp, info = self.env.step(act)
+        obs, rew, trm, trc = [
+            th.as_tensor(d, device=self.device) for d in exp]
+        return obs, rew, trm, trc, info
+
     def step(self, act, truncate=False):
         if isinstance(act, th.Tensor):
             act = act.cpu().numpy()
 
-        *exp, info = self.env.step(act)
-
-        obs, rew, trm, trc = [
-            th.as_tensor(d, device=self.device) for d in exp]
+        obs, rew, trm, trc, info = self._step(act)
         
         self.length += 1
         

@@ -1,11 +1,16 @@
 import torch as th
 
 from gumbo.env.gym import TorchEnv
-from gumbo.policy import BasePolicy
+
 from gumbo.buffers import Buffer
 from gumbo.buffers import EpisodicBuffer
 
+from gumbo.modules.policy import BasePolicy
 
+
+# TODO: EpisodicCollector?
+# TODO: ParallelCollector?
+# TODO: Handle on-policy & off-policy
 class Collector:
     """
     Collects data from an environment via the given policy
@@ -41,9 +46,8 @@ class Collector:
             
             # make episode on end
             if "final_obs" in info:
-                info["idx"] = slice(
-                    t + 1 - info.pop("ep_length"), 
-                    t + 1)
+                length = info.pop("ep_length")
+                info["idx"] = slice(t + 1 - length, t + 1)
                 self.buffer.add_episode(info)
 
         return self.buffer.copy()

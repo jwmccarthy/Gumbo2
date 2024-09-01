@@ -6,8 +6,8 @@ def dims_to_sequential(in_dim, hidden_dims, out_dim, act_func):
     modules = []
     last_dim = in_dim
     for next_dim in hidden_dims:
-        modules.append(nn.Linear(last_dim, next_dim))
-        modules.append(act_func())
+        modules.extend([
+            nn.Linear(last_dim, next_dim), act_func()])
         last_dim = next_dim
     modules.append(nn.Linear(last_dim, out_dim))
     return nn.Sequential(*modules)
