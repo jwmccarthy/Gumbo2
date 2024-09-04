@@ -2,8 +2,8 @@ import torch as th
 
 from gumbo.env.gym import TorchEnv
 
-from gumbo.buffers import Buffer
-from gumbo.buffers import EpisodicBuffer
+from gumbo.data.buffer import Buffer
+from gumbo.data.buffer import EpisodicBuffer
 
 from gumbo.modules.policy import BasePolicy
 
@@ -30,6 +30,8 @@ class Collector:
 
     @th.no_grad()
     def _fill_buffer(self):
+        self.buffer.clear()
+
         obs = self.env.reset()
 
         for t in range(self.length):
@@ -39,7 +41,7 @@ class Collector:
             act = self.policy(obs)
             obs, rew, info = self.env.step(
                 act, truncate=stop)
-
+            
             # store experience
             self.buffer[t] = dict(
                 obs=obs, act=act, rew=rew)

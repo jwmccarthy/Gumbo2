@@ -6,8 +6,8 @@ from gymnasium.spaces import Space
 from typing import List
 from typing import SupportsFloat
 
-from gumbo.types import TorchSpec
-from gumbo.types import torch_dtypes
+from gumbo.data.types import TorchSpec
+from gumbo.data.types import torch_dtypes
 
 
 def _torch_spec_from_space(space: Space, device="cpu"):

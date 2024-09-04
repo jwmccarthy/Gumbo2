@@ -1,4 +1,5 @@
 import torch as th
+import torch.nn.functional as F
 
 from torchaudio.functional import fftconvolve
 
@@ -7,7 +8,7 @@ def _compute_episode_advantages(episode, lmbda=0.95, gamma=0.99):
     next_vals = th.cat((episode.val[1:], episode.final_val))
     td_errors = episode.rew + gamma * next_vals - episode.val
 
-    T = len(episode.rew)
+    T = len(episode)
 
     # kernel of discount geometric series
     kernel = (gamma * lmbda) ** th.arange(
@@ -16,7 +17,7 @@ def _compute_episode_advantages(episode, lmbda=0.95, gamma=0.99):
     episode.adv[:] = fftconvolve(td_errors, kernel)[-T:]
 
 
-def compute_advantages(data, lmbda=0.95, gamma=0.99):
+def compute_advantages_and_returns(data, lmbda=0.95, gamma=0.99):
     assert "val" in data
     assert "rew" in data
 
@@ -27,4 +28,6 @@ def compute_advantages(data, lmbda=0.95, gamma=0.99):
 
     data.set(ret=data.adv + data.val)
 
-    return data
+
+def normalize(x):
+    return (x - x.mean()) / (x.std() + 1e-8)

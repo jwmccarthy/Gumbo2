@@ -1,6 +1,6 @@
 import torch as th
 
-from gumbo.types import TorchSpec
+from gumbo.data.types import TorchSpec
 from gumbo.env.spaces import _torch_spec_from_space
 
 

@@ -2,9 +2,9 @@ import torch as th
 
 from typing import List
 
-from gumbo.types import Index, Device
-from gumbo.bundle import TensorBundle
-from gumbo.bundle import BundleSubset
+from gumbo.data.types import Index, Device
+from gumbo.data.bundle import TensorBundle
+from gumbo.data.bundle import TensorSubset
 
 
 # TODO: on-policy & off-policy implementations?
@@ -37,17 +37,14 @@ class EpisodicBuffer(Buffer):
     Buffer that stores episodes as views of its contiguous data
     """
 
-    _index: int
     _episodes: List[dict]
 
     def __init__(self, data: dict, device: Device = "cpu"):
         super().__init__(data, device=device)
-        self._index = 0
         self._episodes = []
 
     def add_episode(self, info: dict):
-        episode = BundleSubset(
-            self, info.pop("idx"))
+        episode = TensorSubset(self, info.pop("idx"))
         for key, val in info.items():
             setattr(episode, key, val)
         self._episodes.append(episode)
@@ -60,8 +57,9 @@ class EpisodicBuffer(Buffer):
         buffer = EpisodicBuffer(
             self._data, device=self.device)
         buffer._episodes = self.episodes
+        for e in buffer._episodes:
+            e._data = buffer
         return buffer
     
     def clear(self):
-        self._index = 0
         self._episodes.clear()

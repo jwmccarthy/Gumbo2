@@ -18,7 +18,6 @@ class ValueOperator(nn.Module):
         feat_dims = self.encoder.build(obs_spec)
         self.body.build(feat_dims, 1)
         self.model = nn.Sequential(self.encoder, self.body)
-        self.shape = obs_spec.shape
         return self
     
     def forward(self, obs):

@@ -2,8 +2,8 @@ import torch as th
 
 from typing import Self
 
-from gumbo.types import Index
-from gumbo.types import Device
+from gumbo.data.types import Index
+from gumbo.data.types import Device
 
 
 class TensorBundle:
@@ -56,7 +56,7 @@ class TensorBundle:
         return self
     
 
-class BundleSubset(TensorBundle):
+class TensorSubset(TensorBundle):
     """
     Reference to a subset of a TensorBundle
     """
@@ -91,3 +91,17 @@ class BundleSubset(TensorBundle):
 
     def set(self, **kwargs):
         self._data.set(**kwargs)
+
+
+class ListBundle:
+    """
+    TensorBundle-like functionality for lists w/ defaultdict behavior
+    """
+
+    def __init__(self, data: dict = None):
+        self._data = {}
+
+    def _parse_data(self, data):
+        if isinstance(data, dict):
+            return ListBundle(data)
+        return data
