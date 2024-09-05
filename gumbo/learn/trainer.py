@@ -14,6 +14,8 @@ class Trainer:
 
         #self.logger.start(num_steps)
 
+        ep_rew = []
+
         for data in self.collector.collect(num_steps):
             info = self.algorithm.update(data)
             
@@ -25,17 +27,9 @@ class Trainer:
 
             global_t += len(data)
 
-            list_ep_rew, list_ep_len = [], []
-            mean_ep_rew, mean_ep_len = 0, 0
             for e in data.episodes:
-                mean_ep_rew += e.rew.sum().item()
-                mean_ep_len += len(e)
-            list_ep_rew.append(mean_ep_rew / len(data.episodes))
-            list_ep_len.append(mean_ep_len / len(data.episodes))
-            rolling_ep_rew = np.mean(list_ep_rew[-200:])
-            rolling_ep_len = np.mean(list_ep_len[-200:])
-            print(f"mean_ep_rew: {rolling_ep_rew}, mean_ep_len: {rolling_ep_len}")
+                ep_rew.append(e.rew.sum().item())
 
-            print(info)
+            print(f"Episode reward: {np.mean(ep_rew[-100:])}")
 
             if info.get("stop"): break

@@ -43,22 +43,19 @@ class EpisodicBuffer(Buffer):
         super().__init__(data, device=device)
         self._episodes = []
 
+    @property
+    def episodes(self):
+        return [e.point(self) for e in self._episodes]
+
     def add_episode(self, info: dict):
         episode = TensorSubset(self, info.pop("idx"))
         for key, val in info.items():
             setattr(episode, key, val)
         self._episodes.append(episode)
-
-    @property
-    def episodes(self):
-        return self._episodes[:]
     
     def copy(self):
-        buffer = EpisodicBuffer(
-            self._data, device=self.device)
-        buffer._episodes = self.episodes
-        for e in buffer._episodes:
-            e._data = buffer
+        buffer = EpisodicBuffer(self._data, device=self.device)
+        buffer._episodes = [e.point(buffer) for e in self._episodes]
         return buffer
     
     def clear(self):

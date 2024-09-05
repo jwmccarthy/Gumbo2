@@ -19,9 +19,10 @@ class TorchEnv:
             (), th.float32, device=self.device)
         
         # env spec for data initialization
-        self.env_spec = dict(obs=self.obs_spec, 
-                             act=self.act_spec, 
-                             rew=self.rew_spec
+        self.env_spec = dict(
+            obs=self.obs_spec, 
+            act=self.act_spec, 
+            rew=self.rew_spec
         )
 
         self.length = 0  # current episode length

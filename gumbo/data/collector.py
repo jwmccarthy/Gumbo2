@@ -39,7 +39,7 @@ class Collector:
 
             # collect experience
             act = self.policy(obs)
-            obs, rew, info = self.env.step(
+            next_obs, rew, info = self.env.step(
                 act, truncate=stop)
             
             # store experience
@@ -52,7 +52,9 @@ class Collector:
                 info["idx"] = slice(t + 1 - length, t + 1)
                 self.buffer.add_episode(info)
 
-        return self.buffer.copy()
+            obs = next_obs
+
+        return self.buffer.serve()
     
     def collect(self, steps: int):
         global_t = 0

@@ -89,10 +89,15 @@ class TensorSubset(TensorBundle):
     def device(self):
         return self._data.device
 
+    def point(self, data: TensorBundle):
+        self._data = data
+        return self
+
     def set(self, **kwargs):
         self._data.set(**kwargs)
 
 
+# TODO
 class ListBundle:
     """
     TensorBundle-like functionality for lists w/ defaultdict behavior
