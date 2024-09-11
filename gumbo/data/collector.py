@@ -54,7 +54,7 @@ class Collector:
 
             obs = next_obs
 
-        return self.buffer.serve()
+        return self.buffer.copy()
     
     def collect(self, steps: int):
         global_t = 0

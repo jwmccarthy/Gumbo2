@@ -23,3 +23,6 @@ class Logger:
             rew=np.mean(self.episodic_log.rew[-100:]),
             len=np.mean(self.episodic_log.len[-100:])
         )
+
+    def log_training(self, data):
+        self.training_log.append(**data)
