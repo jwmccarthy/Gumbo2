@@ -2,6 +2,8 @@ import torch as th
 
 from typing import Self
 
+from collections import defaultdict
+
 from gumbo.data.types import Index
 from gumbo.data.types import Device
 
@@ -43,7 +45,12 @@ class TensorBundle:
         return len(next(iter(self._data.values())))
     
     def __contains__(self, key: str):
-        return key in self._data
+        if key in self._data:
+            return True
+        for val in self._data.values():
+            if isinstance(val, TensorBundle) and key in val:
+                return True
+        return False
     
     def set(self, **kwargs):
         for key, val in kwargs.items():
@@ -97,7 +104,6 @@ class TensorSubset(TensorBundle):
         self._data.set(**kwargs)
 
 
-# TODO
 class ListBundle:
     """
     TensorBundle-like functionality for lists w/ defaultdict behavior
@@ -105,8 +111,54 @@ class ListBundle:
 
     def __init__(self, data: dict = None):
         self._data = {}
+        if data is None: data = {}
+        for key, val in data.items():
+            self._data[key] = self._parse_data(val)
 
     def _parse_data(self, data):
         if isinstance(data, dict):
             return ListBundle(data)
         return data
+    
+    def __setitem__(self, idx: Index, val: dict | Self):
+        if isinstance(val, ListBundle):
+            val = val._data
+        for key, data in val.items():
+            self._data[key][idx] = self._parse_data(data)
+
+    def __getitem__(self, idx: Index):
+        return ListBundle(
+            {key: val[idx] for key, val in self._data.items()})
+    
+    def __getattr__(self, key: str):
+        if key in self._data:
+            return self._data[key]
+        return self.__getattribute__(key)
+    
+    def __len__(self):
+        return len(next(iter(self._data.values())))
+    
+    def __contains__(self, key: str):
+        if key in self._data:
+            return True
+        for val in self._data.values():
+            if isinstance(val, ListBundle) and key in val:
+                return True
+        return False
+    
+    def set(self, **kwargs):
+        for key, val in kwargs.items():
+            self._data[key] = self._parse_data(val)
+
+    def append(self, data: dict):
+        if isinstance(data, ListBundle):
+            data = data._data
+        for key, val in data.items():
+            if key in self._data:
+                self._data[key].append(val)
+            else:
+                if isinstance(val, dict):
+                    self._data[key] = ListBundle().append(val)
+                else:
+                    self._data[key] = [val]
+        return self

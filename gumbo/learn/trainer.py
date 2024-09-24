@@ -1,11 +1,10 @@
-import numpy as np
-
-from gumbo.log import Logger
+from gumbo.log.core import Logger
 
 
 class Trainer:
 
-    def __init__(self, collector, algorithm, logger=None):
+    def __init__(self, collector, algorithm):
+        self.logger = Logger()
         self.collector = collector
         self.algorithm = algorithm
 
@@ -21,8 +20,12 @@ class Trainer:
             if self.logger:
                 self.logger.log_episodic(data)
                 self.logger.log_training(info)
-                self.logger.set_progress(global_t)
+                self.logger.set_progress(len(data))
 
             global_t += len(data)
 
             if info.get("stop"): break
+
+        self.logger.stop()
+
+        return self.logger

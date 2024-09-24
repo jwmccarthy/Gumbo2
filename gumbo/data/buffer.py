@@ -15,6 +15,8 @@ class Buffer(TensorBundle):
     TensorBundle with additional methods for managing experience data
     """
 
+    _index: Index
+
     def __init__(self, data: dict, device: Device = "cpu"):
         super().__init__(data, device=device)
 

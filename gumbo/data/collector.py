@@ -26,7 +26,6 @@ class Collector:
         self.policy = policy
         self.buffer = buffer
         self.device = buffer.device
-        self.length = len(self.buffer)
 
     @th.no_grad()
     def _fill_buffer(self):
